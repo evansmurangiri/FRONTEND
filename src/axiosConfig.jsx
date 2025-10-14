@@ -1,7 +1,11 @@
-// src/axiosConfig.js
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:5000"; // your backend
-axios.defaults.withCredentials = true;             // send cookies automatically
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-export default axios;
+export default axiosInstance;
