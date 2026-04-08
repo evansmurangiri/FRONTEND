@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import JoditEditor from 'jodit-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import axiosInstance from '../axiosConfig'
 import { toast } from 'sonner';
 import { setBlog } from '@/redux/blogSlice';
 
