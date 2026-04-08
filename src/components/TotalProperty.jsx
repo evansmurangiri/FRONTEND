@@ -2,7 +2,7 @@ import { BarChart3, Eye, MessageSquare, ThumbsUp } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useDispatch, useSelector } from 'react-redux'
-import axios from 'axios'
+import axiosInstance from '../axiosConfig''
 import { setBlog } from '@/redux/blogSlice'
 
 const TotalProperty = () => {
