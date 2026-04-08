@@ -5,7 +5,7 @@ import { FaHeart, FaRegHeart } from "react-icons/fa6";
 import { LuSend } from "react-icons/lu";
 import { Button } from './ui/button';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import axiosInstance from '../axiosConfig'
 import { toast } from 'sonner';
 import { setBlog } from '@/redux/blogSlice';
 import { setComment } from '@/redux/commentSlice';
