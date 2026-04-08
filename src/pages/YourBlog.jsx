@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { useDispatch, useSelector } from 'react-redux'
-import axios from 'axios'
+import axiosInstance from '../axiosConfig'
 import { setBlog } from '@/redux/blogSlice'
 import { Edit, Eye, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
