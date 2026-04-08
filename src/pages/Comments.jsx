@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import axios from 'axios'
+import axiosInstance from '../axiosConfig'
 import { Edit, Eye, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
