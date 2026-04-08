@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from '@/components/ui/input'
 import { Link, useNavigate } from 'react-router-dom'
 import { Textarea } from '@/components/ui/textarea'
-import axios from 'axios'
+import axiosInstance from '../axiosConfig'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { setUser } from '@/redux/authSlice'
