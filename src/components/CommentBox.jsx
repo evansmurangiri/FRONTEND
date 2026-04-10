@@ -41,14 +41,10 @@ const CommentBox = ({ selectedBlog }) => {
         setContent(inputText.trim() ? inputText : '');
     }
 
-    // Fetch all comments for the selected blog
     useEffect(() => {
         const getAllCommentsOfBlog = async () => {
             try {
-                const res = await axios.get(
-                    `http://localhost:5000/api/v1/comment/${selectedBlog._id}/comment/all`,
-                    { withCredentials: true }
-                );
+                const res = await axiosInstance.get(`/comment/${selectedBlog._id}/comment/all`);
                 dispatch(setComment(res.data.comments));
             } catch (error) {
                 console.log(error);
@@ -60,16 +56,10 @@ const CommentBox = ({ selectedBlog }) => {
     const commentHandler = async () => {
         if (!content) return toast.error("Comment cannot be empty");
         try {
-            const res = await axios.post(
-                `http://localhost:5000/api/v1/comment/${selectedBlog._id}/create`,
-                { content },
-                { headers: { "Content-Type": "application/json" }, withCredentials: true }
-            );
-
+            const res = await axiosInstance.post(`/comment/${selectedBlog._id}/create`, { content });
             if (res.data.success) {
                 const updatedCommentData = comment.length ? [...comment, res.data.comment] : [res.data.comment];
                 dispatch(setComment(updatedCommentData));
-
                 const updatedBlogData = blog.map(p =>
                     p._id === selectedBlog._id ? { ...p, comments: updatedCommentData } : p
                 );
@@ -85,11 +75,7 @@ const CommentBox = ({ selectedBlog }) => {
 
     const deleteComment = async (commentId) => {
         try {
-            const res = await axios.delete(
-                `http://localhost:5000/api/v1/comment/${commentId}/delete`,
-                { withCredentials: true }
-            );
-
+            const res = await axiosInstance.delete(`/comment/${commentId}/delete`);
             if (res.data.success) {
                 const updatedCommentData = comment.filter(item => item._id !== commentId);
                 dispatch(setComment(updatedCommentData));
@@ -104,12 +90,7 @@ const CommentBox = ({ selectedBlog }) => {
     const editCommentHandler = async (commentId) => {
         if (!editedContent) return toast.error("Comment cannot be empty");
         try {
-            const res = await axios.put(
-                `http://localhost:5000/api/v1/comment/${commentId}/edit`,
-                { content: editedContent },
-                { headers: { "Content-Type": "application/json" }, withCredentials: true }
-            );
-
+            const res = await axiosInstance.put(`/comment/${commentId}/edit`, { content: editedContent });
             if (res.data.success) {
                 const updatedCommentData = comment.map(item =>
                     item._id === commentId ? { ...item, content: editedContent } : item
@@ -127,11 +108,7 @@ const CommentBox = ({ selectedBlog }) => {
 
     const likeCommentHandler = async (commentId) => {
         try {
-            const res = await axios.get(
-                `http://localhost:5000/api/v1/comment/${commentId}/like`,
-                { withCredentials: true }
-            );
-
+            const res = await axiosInstance.get(`/comment/${commentId}/like`);
             if (res.data.success) {
                 const updatedCommentList = comment.map(item =>
                     item._id === commentId ? res.data.updatedComment : item
@@ -176,7 +153,7 @@ const CommentBox = ({ selectedBlog }) => {
                                     </Avatar>
                                     <div className='mb-2 space-y-1 md:w-[400px]'>
                                         <h1 className='font-semibold'>
-                                            {item?.userId?.firstName} {item?.userId?.lastName} 
+                                            {item?.userId?.firstName} {item?.userId?.lastName}
                                             <span className='text-sm ml-2 font-light'>yesterday</span>
                                         </h1>
                                         {editingCommentId === item._id ? (
@@ -199,39 +176,4 @@ const CommentBox = ({ selectedBlog }) => {
                                                 {item.likes.includes(user._id) ? <FaHeart fill='red' /> : <FaRegHeart />}
                                                 <span>{item.numberOfLikes}</span>
                                             </div>
-                                            <p onClick={() => handleReplyClick(item._id)} className='text-sm cursor-pointer'>Reply</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {user._id === item?.userId?._id && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger><BsThreeDots /></DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-[180px]">
-                                            <DropdownMenuItem onClick={() => { setEditingCommentId(item._id); setEditedContent(item.content); }}><Edit />Edit</DropdownMenuItem>
-                                            <DropdownMenuItem className="text-red-500" onClick={() => deleteComment(item._id)}><Trash2 />Delete</DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                            </div>
-
-                            {activeReplyId === item._id && (
-                                <div className='flex gap-3 w-full px-10'>
-                                    <Textarea
-                                        placeholder="Reply here ..."
-                                        className="border-2 dark:border-gray-500 bg-gray-200 dark:bg-gray-700"
-                                        onChange={(e) => setReplyText(e.target.value)}
-                                        value={replyText}
-                                    />
-                                    <Button onClick={commentHandler}><LuSend /></Button>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    )
-}
-
-export default CommentBox
+                                            <p onClick={() => handleReplyClick(item._id)} className='text-sm cursor-pointer'>Rep
