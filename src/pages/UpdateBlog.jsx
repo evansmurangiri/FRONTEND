@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import JoditEditor from 'jodit-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import axiosInstance from '../axiosConfig'
+import axiosInstance from '../axiosConfig';
 import { toast } from 'sonner';
 import { setBlog } from '@/redux/blogSlice';
 
@@ -35,7 +35,6 @@ const UpdateBlog = () => {
     const { blog } = useSelector(store => store.blog);
     const selectBlog = blog.find(b => b._id === id);
 
-    // Initialize blog data on mount
     useEffect(() => {
         if (selectBlog) {
             setBlogData({
@@ -71,14 +70,11 @@ const UpdateBlog = () => {
     const updateBlogHandler = async () => {
         try {
             setLoading(true);
-
-            // Check required fields
             if (!blogData.title || !blogData.category) {
                 toast.error("Title and category are required.");
                 setLoading(false);
                 return;
             }
-
             const formData = new FormData();
             formData.append("title", blogData.title);
             formData.append("subtitle", blogData.subtitle);
@@ -86,16 +82,12 @@ const UpdateBlog = () => {
             formData.append("category", blogData.category);
             if (thumbnailFile) formData.append("file", thumbnailFile);
 
-            const res = await axios.put(
-                `http://localhost:5000/api/v1/blog/${id}`,
-                formData,
-                { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true }
-            );
+            const res = await axiosInstance.put(`/blog/${id}`, formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
 
             if (res.data.success) {
                 toast.success(res.data.message);
-
-                // Update Redux store
                 const updatedBlogData = blog.map(b => b._id === id ? res.data.blog : b);
                 dispatch(setBlog(updatedBlogData));
             }
@@ -110,12 +102,7 @@ const UpdateBlog = () => {
     const togglePublishUnpublish = async () => {
         try {
             const action = publish ? "false" : "true";
-            const res = await axios.patch(
-                `http://localhost:5000/api/v1/blog/${id}?publish=${action}`,
-                {},
-                { withCredentials: true }
-            );
-
+            const res = await axiosInstance.patch(`/blog/${id}?publish=${action}`, {});
             if (res.data.success) {
                 setPublish(!publish);
                 toast.success(res.data.message);
@@ -130,11 +117,7 @@ const UpdateBlog = () => {
 
     const deleteBlog = async () => {
         try {
-            const res = await axios.delete(
-                `http://localhost:5000/api/v1/blog/delete/${id}`,
-                { withCredentials: true }
-            );
-
+            const res = await axiosInstance.delete(`/blog/delete/${id}`);
             if (res.data.success) {
                 const updatedBlogData = blog.filter(b => b._id !== id);
                 dispatch(setBlog(updatedBlogData));
@@ -175,11 +158,7 @@ const UpdateBlog = () => {
 
                     <div>
                         <Label>Description</Label>
-                        <JoditEditor
-                            ref={editor}
-                            value={content}
-                            onChange={setContent}
-                        />
+                        <JoditEditor ref={editor} value={content} onChange={setContent} />
                     </div>
 
                     <div>
