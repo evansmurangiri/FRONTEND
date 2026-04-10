@@ -4,7 +4,7 @@ import BlogCardList from "./BlogCardList";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { setBlog } from "@/redux/blogSlice";
-import axios from "axios";
+import axiosInstance from "../axiosConfig";
 
 const tags = [
   { category: "Investment & Finance" },
@@ -17,15 +17,12 @@ const tags = [
 const RecentBlog = () => {
   const { blog } = useSelector((store) => store.blog);
   const dispatch = useDispatch();
-  const [visibleCount, setVisibleCount] = useState(4); // initial number of blogs visible
+  const [visibleCount, setVisibleCount] = useState(4);
 
   useEffect(() => {
     const getAllPublishedBlogs = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/v1/blog/get-published-blogs`,
-          { withCredentials: true }
-        );
+        const res = await axiosInstance.get(`/blog/get-published-blogs`);
         if (res.data.success) {
           dispatch(setBlog(res.data.blogs));
         }
@@ -49,10 +46,8 @@ const RecentBlog = () => {
     return [...blog]
       .filter((b) => !recentIds.has(b._id))
       .sort((a, b) => {
-        const scoreA =
-          (a.likes?.length || 0) + 1 / (new Date() - new Date(a.createdAt));
-        const scoreB =
-          (b.likes?.length || 0) + 1 / (new Date() - new Date(b.createdAt));
+        const scoreA = (a.likes?.length || 0) + 1 / (new Date() - new Date(a.createdAt));
+        const scoreB = (b.likes?.length || 0) + 1 / (new Date() - new Date(b.createdAt));
         return scoreB - scoreA;
       })
       .slice(0, 8);
@@ -66,17 +61,14 @@ const RecentBlog = () => {
     <div
       className="bg-gray-100 dark:bg-gray-800 pb-10"
       style={{
-        fontFamily:
-          "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
+        fontFamily: "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
       }}
     >
-      {/* Header */}
       <div className="max-w-6xl mx-auto flex flex-col space-y-4 items-center">
         <h1 className="text-4xl font-bold pt-10">Recent Blogs</h1>
         <hr className="w-24 text-center border-2 border-yellow-500 rounded-full" />
       </div>
 
-      {/* Categories Navigation */}
       <div className="flex flex-wrap justify-center gap-3 mt-6 px-4">
         {tags.map((item, index) => (
           <Badge
@@ -97,7 +89,6 @@ const RecentBlog = () => {
         ))}
       </div>
 
-      {/* Recent Blogs Grid */}
       <div className="max-w-7xl mx-auto mt-10 px-4 md:px-0">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {recentBlogs.slice(0, visibleCount).map((b) => (
@@ -105,7 +96,6 @@ const RecentBlog = () => {
           ))}
         </div>
 
-        {/* View All Button */}
         {visibleCount < recentBlogs.length && (
           <div className="flex justify-center mt-8">
             <Button
@@ -122,7 +112,6 @@ const RecentBlog = () => {
         )}
       </div>
 
-      {/* Trending Section */}
       {trendingBlogs.length > 0 && (
         <>
           <div className="max-w-6xl mx-auto flex flex-col space-y-4 items-center mt-16">
