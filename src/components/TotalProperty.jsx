@@ -2,7 +2,7 @@ import { BarChart3, Eye, MessageSquare, ThumbsUp } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useDispatch, useSelector } from 'react-redux'
-import axiosInstance from '../axiosConfig''
+import axiosInstance from '../axiosConfig'
 import { setBlog } from '@/redux/blogSlice'
 
 const TotalProperty = () => {
@@ -11,13 +11,9 @@ const TotalProperty = () => {
   const [totalLikes, setTotalLikes] = useState(0)
   const dispatch = useDispatch()
 
-  // ✅ Fetch only logged-in user's blogs
   const getOwnBlog = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/v1/blog/get-own-blogs`,
-        { withCredentials: true }
-      )
+      const res = await axiosInstance.get(`/blog/get-own-blogs`)
       if (res.data.success) {
         dispatch(setBlog(res.data.blogs))
       }
@@ -28,10 +24,7 @@ const TotalProperty = () => {
 
   const getTotalComments = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/v1/comment/my-blogs/comments`,
-        { withCredentials: true }
-      )
+      const res = await axiosInstance.get(`/comment/my-blogs/comments`)
       if (res.data.success) {
         setTotalComments(res.data.totalComments)
       }
@@ -42,10 +35,7 @@ const TotalProperty = () => {
 
   const getTotalLikes = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/v1/blog/my-blogs/likes`,
-        { withCredentials: true }
-      )
+      const res = await axiosInstance.get(`/blog/my-blogs/likes`)
       if (res.data.success) {
         setTotalLikes(res.data.totalLikes)
       }
@@ -63,7 +53,7 @@ const TotalProperty = () => {
   const stats = [
     {
       title: "Total Views",
-      value: "24.8K", // 👉 replace later with real views if you implement
+      value: "24.8K",
       icon: Eye,
       change: "+12%",
       trend: "up",
@@ -102,11 +92,7 @@ const TotalProperty = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stat.value}</div>
-              <p
-                className={`text-xs ${
-                  stat.trend === "up" ? "text-green-500" : "text-red-500"
-                }`}
-              >
+              <p className={`text-xs ${stat.trend === "up" ? "text-green-500" : "text-red-500"}`}>
                 {stat.change} from last month
               </p>
             </CardContent>
