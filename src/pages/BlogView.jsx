@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Bookmark, MessageSquare, Share2 } from "lucide-react"
 import CommentBox from "@/components/CommentBox"
-import axios from "axios"
+import axiosInstance from "../axiosConfig"
 import { FaHeart, FaRegHeart } from "react-icons/fa6"
 import { setBlog } from "@/redux/blogSlice"
 import { toast } from "sonner"
@@ -30,14 +30,10 @@ const BlogView = () => {
   const [liked, setLiked] = useState(false)
   const dispatch = useDispatch()
 
-  // ✅ Fetch blog
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:5000/api/v1/blog/blog/${blogId}`,
-          { withCredentials: true }
-        )
+        const res = await axiosInstance.get(`/blog/blog/${blogId}`)
         if (res.data.success) {
           setSelectedBlog(res.data.blog)
           setBlogLike(res.data.blog.likes?.length || 0)
@@ -55,17 +51,11 @@ const BlogView = () => {
   const likeOrDislikeHandler = async () => {
     try {
       const action = liked ? "dislike" : "like"
-      const res = await axios.get(
-        `http://localhost:5000/api/v1/blog/${selectedBlog?._id}/${action}`,
-        { withCredentials: true }
-      )
-
+      const res = await axiosInstance.get(`/blog/${selectedBlog?._id}/${action}`)
       if (res.data.success) {
         const updatedLikes = liked ? blogLike - 1 : blogLike + 1
         setBlogLike(updatedLikes)
         setLiked(!liked)
-
-        // update redux blog state
         const updatedBlogData = blog.map((p) =>
           p._id === selectedBlog._id
             ? {
@@ -94,13 +84,11 @@ const BlogView = () => {
   const handleShare = (blogId) => {
     const blogUrl = `${window.location.origin}/blogs/${blogId}`
     if (navigator.share) {
-      navigator
-        .share({
-          title: "Check out this blog!",
-          text: "Read this amazing blog post.",
-          url: blogUrl,
-        })
-        .catch((err) => console.error("Error sharing:", err))
+      navigator.share({
+        title: "Check out this blog!",
+        text: "Read this amazing blog post.",
+        url: blogUrl,
+      }).catch((err) => console.error("Error sharing:", err))
     } else {
       navigator.clipboard.writeText(blogUrl).then(() => {
         toast.success("Blog link copied to clipboard!")
@@ -116,7 +104,6 @@ const BlogView = () => {
     )
   }
 
-  // ✅ Get related blogs
   const relatedBlogs = blog
     .filter(
       (b) =>
@@ -129,26 +116,19 @@ const BlogView = () => {
     <div
       className="pt-14"
       style={{
-        fontFamily:
-          "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
+        fontFamily: "'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif",
       }}
     >
       <div className="max-w-6xl mx-auto px-4 lg:px-8 flex gap-8">
-        {/* LEFT COLUMN - BLOG CONTENT */}
         <div className="max-w-3xl w-full">
-          {/* Breadcrumb */}
           <Breadcrumb className="mb-6">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <Link to={"/"}>
-                  <BreadcrumbLink>Home</BreadcrumbLink>
-                </Link>
+                <Link to={"/"}><BreadcrumbLink>Home</BreadcrumbLink></Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <Link to={"/blogs"}>
-                  <BreadcrumbLink>Blogs</BreadcrumbLink>
-                </Link>
+                <Link to={"/blogs"}><BreadcrumbLink>Blogs</BreadcrumbLink></Link>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
@@ -157,24 +137,17 @@ const BlogView = () => {
             </BreadcrumbList>
           </Breadcrumb>
 
-          {/* Blog Header */}
           <header className="mb-6 text-left">
             <h1 className="text-4xl font-extrabold tracking-tight leading-snug mb-4">
               {selectedBlog?.title}
             </h1>
             <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
               <Avatar>
-                <AvatarImage
-                  src={selectedBlog?.author?.photoUrl || ""}
-                  alt="Author"
-                />
+                <AvatarImage src={selectedBlog?.author?.photoUrl || ""} alt="Author" />
                 <AvatarFallback>NE</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium">
-                  {selectedBlog?.author?.firstName}{" "}
-                  {selectedBlog?.author?.lastName}
-                </p>
+                <p className="font-medium">{selectedBlog?.author?.firstName} {selectedBlog?.author?.lastName}</p>
                 <p className="text-xs">{selectedBlog?.author?.occupation}</p>
               </div>
               <span>• {changeTimeFormat(selectedBlog?.createdAt)}</span>
@@ -182,7 +155,6 @@ const BlogView = () => {
             </div>
           </header>
 
-          {/* Featured Image */}
           <div className="mb-6 rounded-2xl overflow-hidden shadow-md">
             <img
               src={selectedBlog?.thumbnail}
@@ -191,69 +163,42 @@ const BlogView = () => {
             />
           </div>
 
-          {/* Subtitle BELOW image */}
           <p className="text-lg text-gray-600 dark:text-gray-400 mb-8">
             {selectedBlog?.subtitle}
           </p>
 
-          {/* Blog Content */}
           <article
             className="prose prose-lg dark:prose-invert max-w-none mb-12 text-left"
             dangerouslySetInnerHTML={{ __html: selectedBlog?.description }}
           />
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-12">
             {selectedBlog?.tags?.map((tag, idx) => (
-              <Badge key={idx} variant="secondary">
-                {tag}
-              </Badge>
+              <Badge key={idx} variant="secondary">{tag}</Badge>
             ))}
           </div>
 
-          {/* Engagement */}
           <div className="flex items-center justify-between border-y border-gray-200 dark:border-gray-700 py-4 mb-12">
             <div className="flex items-center gap-6">
-              <Button
-                onClick={likeOrDislikeHandler}
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-1"
-              >
-                {liked ? (
-                  <FaHeart size={20} className="text-red-600" />
-                ) : (
-                  <FaRegHeart size={20} className="hover:text-gray-600" />
-                )}
+              <Button onClick={likeOrDislikeHandler} variant="ghost" size="sm" className="flex items-center gap-1">
+                {liked ? <FaHeart size={20} className="text-red-600" /> : <FaRegHeart size={20} className="hover:text-gray-600" />}
                 <span>{blogLike}</span>
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-1"
-              >
+              <Button variant="ghost" size="sm" className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" />
                 <span>{comment.length} Comments</span>
               </Button>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm">
-                <Bookmark className="h-4 w-4" />
-              </Button>
-              <Button
-                onClick={() => handleShare(selectedBlog._id)}
-                variant="ghost"
-                size="sm"
-              >
+              <Button variant="ghost" size="sm"><Bookmark className="h-4 w-4" /></Button>
+              <Button onClick={() => handleShare(selectedBlog._id)} variant="ghost" size="sm">
                 <Share2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
-          {/* Comments */}
           <CommentBox selectedBlog={selectedBlog} />
 
-          {/* Related Blogs */}
           {relatedBlogs.length > 0 && (
             <div className="mt-20">
               <h2 className="text-2xl font-bold mb-6">Related Content</h2>
@@ -264,18 +209,10 @@ const BlogView = () => {
                     to={`/blogs/${rel._id}`}
                     className="bg-white dark:bg-gray-900 border rounded-lg shadow hover:shadow-lg transition overflow-hidden"
                   >
-                    <img
-                      src={rel.thumbnail}
-                      alt={rel.title}
-                      className="w-full h-40 object-cover object-center"
-                    />
+                    <img src={rel.thumbnail} alt={rel.title} className="w-full h-40 object-cover object-center" />
                     <div className="p-4">
-                      <h3 className="font-semibold text-lg mb-2">
-                        {rel.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {rel.subtitle}
-                      </p>
+                      <h3 className="font-semibold text-lg mb-2">{rel.title}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2">{rel.subtitle}</p>
                     </div>
                   </Link>
                 ))}
@@ -284,7 +221,6 @@ const BlogView = () => {
           )}
         </div>
 
-        {/* RIGHT COLUMN (reserved for future widgets/ads/etc.) */}
         <div className="hidden lg:block flex-1">{/* Future section */}</div>
       </div>
     </div>
