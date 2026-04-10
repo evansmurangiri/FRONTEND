@@ -9,18 +9,8 @@ import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setUser } from "@/redux/authSlice";
 import auth from "../assets/tb2.jpg";
-import axios from "axios";
-
-// Use an image or SVG for Google
+import axiosInstance from "../axiosConfig";
 import googleIcon from "../assets/google.png";
-
-const API = axios.create({
-  baseURL:
-    import.meta.env.MODE === "development"
-      ? "http://localhost:5000/api/v1"
-      : "https://mern-blog-ha28.onrender.com/api/v1",
-  withCredentials: true,
-});
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,9 +26,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await API.post("/user/login", input, {
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await axiosInstance.post("/user/login", input);
       if (response.data.success) {
         dispatch(setUser(response.data.user));
         toast.success(response.data.message);
@@ -50,17 +38,15 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${API.defaults.baseURL}/user/google-login`;
+    window.location.href = `${import.meta.env.VITE_API_BASE_URL}/user/google-login`;
   };
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
-      {/* Left Image */}
       <div className="hidden md:block flex-1">
         <img src={auth} alt="Login Hero" className="h-full w-full object-cover" />
       </div>
 
-      {/* Login Form */}
       <div className="flex justify-center items-center flex-1 px-4 md:px-0 bg-gray-50 dark:bg-gray-900">
         <Card className="w-full max-w-md p-6 shadow-2xl rounded-2xl dark:bg-gray-800 dark:border-gray-700">
           <CardHeader className="text-center">
@@ -105,23 +91,20 @@ const Login = () => {
                 </button>
               </div>
 
-             <Button
-  type="submit"
-  className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2 rounded-full flex items-center justify-center gap-2"
->
-  <LogIn size={18} /> Login
-</Button>
-
+              <Button
+                type="submit"
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-2 rounded-full flex items-center justify-center gap-2"
+              >
+                <LogIn size={18} /> Login
+              </Button>
             </form>
 
-            {/* Divider */}
             <div className="flex items-center my-4">
               <hr className="flex-1 border-gray-300 dark:border-gray-600" />
               <span className="mx-2 text-gray-500 dark:text-gray-400 text-sm">OR</span>
               <hr className="flex-1 border-gray-300 dark:border-gray-600" />
             </div>
 
-            {/* Google Login */}
             <Button
               type="button"
               onClick={handleGoogleLogin}
