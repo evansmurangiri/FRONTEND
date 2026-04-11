@@ -22,13 +22,11 @@ const CommentBox = ({ selectedBlog }) => {
     const { user } = useSelector(store => store.auth)
     const { comment } = useSelector(store => store.comment)
     const { blog } = useSelector(store => store.blog)
-
     const [content, setContent] = useState("")
     const [activeReplyId, setActiveReplyId] = useState(null);
     const [replyText, setReplyText] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedContent, setEditedContent] = useState('');
-
     const dispatch = useDispatch()
 
     const handleReplyClick = (commentId) => {
@@ -176,4 +174,37 @@ const CommentBox = ({ selectedBlog }) => {
                                                 {item.likes.includes(user._id) ? <FaHeart fill='red' /> : <FaRegHeart />}
                                                 <span>{item.numberOfLikes}</span>
                                             </div>
-                                            <p onClick={() => handleReplyClick(item._id)} className='text-sm cursor-pointer'>Rep
+                                            <p onClick={() => handleReplyClick(item._id)} className='text-sm cursor-pointer'>Reply</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {user._id === item?.userId?._id && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger><BsThreeDots /></DropdownMenuTrigger>
+                                        <DropdownMenuContent className="w-[180px]">
+                                            <DropdownMenuItem onClick={() => { setEditingCommentId(item._id); setEditedContent(item.content); }}><Edit />Edit</DropdownMenuItem>
+                                            <DropdownMenuItem className="text-red-500" onClick={() => deleteComment(item._id)}><Trash2 />Delete</DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
+                            </div>
+                            {activeReplyId === item._id && (
+                                <div className='flex gap-3 w-full px-10'>
+                                    <Textarea
+                                        placeholder="Reply here ..."
+                                        className="border-2 dark:border-gray-500 bg-gray-200 dark:bg-gray-700"
+                                        onChange={(e) => setReplyText(e.target.value)}
+                                        value={replyText}
+                                    />
+                                    <Button onClick={commentHandler}><LuSend /></Button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
+export default CommentBox
